@@ -22,6 +22,13 @@ public class TransactionList {
 	public ArrayList<Transaction> sort() {
 		for (int i = 0; i < transactionList.size(); i++) {
 			for (int j = i; j < transactionList.size(); j++) {
+				if (transactionList.get(i).getDate().compareTo(transactionList.get(j).getDate()) == 0) {
+					if (transactionList.get(i).getAmount() < transactionList.get(j).getAmount()) {
+						Transaction temp1 = transactionList.get(i);
+						transactionList.set(i, transactionList.get(j));
+						transactionList.set(j, temp1);
+					}
+				}
 				if (transactionList.get(i).getDate().compareTo(transactionList.get(j).getDate()) > 0) {
 					Transaction temp = transactionList.get(i);
 					transactionList.set(i, transactionList.get(j));
