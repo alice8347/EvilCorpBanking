@@ -1,13 +1,19 @@
 
 public class Account {
-	String no;
-	String name;
-	double bal;
+	private String no;
+	private String name;
+	private double bal;
 	
 	public Account() {
 		no = "";
 		name = "";
 		bal = 0.0;
+	}
+	
+	public Account(Account a) {
+		no = a.no;
+		name = a.name;
+		bal = a.bal;
 	}
 
 	public String getNo() {
