@@ -11,7 +11,6 @@ public class BankApp {
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		ArrayList<Account> accounts = new ArrayList<Account>();
-		Account accountNew = new Account();
 		String accountNo = "", accountName = "";
 		double accountBal = 0.0;
 		
@@ -28,6 +27,7 @@ public class BankApp {
 		try {
 			accountNo = sc.nextLine();
 			while (!accountNo.equals("-1")) {
+				Account accountNew = new Account();
 				accountNew.setNo(accountNo);
 				System.out.print("Enter the name for acct # " + accountNo + " : ");
 				accountName = sc.nextLine();
