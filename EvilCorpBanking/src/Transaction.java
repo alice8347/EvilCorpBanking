@@ -19,10 +19,14 @@ public class Transaction {
 
 	public void setType(String transactionType) {
 		if (transactionType.length() < 3) {
-			if (transactionType.toUpperCase().charAt(0) == 'W') {
-				type = "withdrawal";
-			} else {
+			if (transactionType.toUpperCase().charAt(0) == 'A') {
+				type = "add an account";
+			} else if (transactionType.toUpperCase().charAt(0) == 'C') {
 				type = "check";
+			} else if (transactionType.toUpperCase().charAt(0) == 'R') {
+				type = "remove an account";
+			} else {
+				type = "withdrawal";
 			}
 		} else {
 			if (transactionType.substring(0, 3).equalsIgnoreCase("DEB")) {
