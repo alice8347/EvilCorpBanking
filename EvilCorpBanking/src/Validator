@@ -53,13 +53,15 @@ public class Validator {
 						isValid = true;
 					} else {
 						isValid = false;
+						System.out.println("Error! Invalid transaction type. Try again.");
 					}
-				}
-			} else {
-				if (type.substring(0, 3).equalsIgnoreCase("DEB") || type.substring(0, 3).equalsIgnoreCase("DEP")) {
-					isValid = true;
 				} else {
-					isValid = false;
+					if (type.substring(0, 3).equalsIgnoreCase("DEB") || type.substring(0, 3).equalsIgnoreCase("DEP")) {
+						isValid = true;
+					} else {
+						isValid = false;
+						System.out.println("Error! Invalid transaction type. Try again.");
+					}
 				}
 			}
 		}
@@ -73,10 +75,10 @@ public class Validator {
 		SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy");
 		Date date = new Date();
         while (isValid == false) {
-        	System.out.println(prompt);
+        	System.out.print(prompt);
         	inputDate = sc.nextLine();
 			try {
-	            // Lenient conversion result in unexpected output
+	            // Lenient conversion result in unexpected output.
 	            date = sdf.parse(inputDate);
 	            isValid = true;
 	        } catch (ParseException e) {
