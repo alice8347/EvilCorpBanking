@@ -1,0 +1,88 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+public class AccountList {
+	ArrayList<Account> accountList;
+	
+	public AccountList() {
+		accountList = new ArrayList<Account>();
+	}
+	
+	public void readAccount() {
+		String fileName = (System.getProperty("user.dir") + File.separatorChar + "myFile.txt");
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(fileName));
+			
+			String readWholeLine = reader.readLine();
+	
+			while (readWholeLine != null) {
+				Account account = new Account();
+				String line[] = new String[3];
+				line = readWholeLine.split("\t");
+				account.setNo(line[0]);
+				account.setName(line[1]);
+				account.setBal(Double.parseDouble(line[2]));
+				accountList.add(account);
+				readWholeLine = reader.readLine();
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		} catch (NullPointerException e) {
+			System.err.println(e.getMessage());
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+	
+	public Account getAccount(int index) {
+		return accountList.get(index);
+	}
+	
+	public void addAccount(Account account) {
+		accountList.add(account);
+	}
+	
+	public void removeAccount(String accountNo) {
+		for (int i = 0; i < accountList.size(); i++) {
+			if (accountList.get(i).equals(accountNo)) {
+				accountList.remove(i);
+			}
+		}
+	}
+	
+	public void setAccount() {
+		String fileName = (System.getProperty("user.dir") + File.separatorChar + "myFile.txt");
+		
+		try {
+			PrintWriter writer = new PrintWriter(new File(fileName));
+			for (int i = 0; i < accountList.size(); i++) {
+				writer.print(accountList.get(i).getNo() + "\t" + accountList.get(i).getName() + "\t" + accountList.get(i).getBal() + "\n");
+			}
+			writer.close();
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+		}
+	}
+	
+	public int getSize() {
+		return accountList.size();
+	}
+	
+	public double getAccountBal(String accountNo) {
+		double balance = 0.0;
+		for (int i = 0; i < accountList.size(); i++) {
+			if (accountList.get(i).getNo().equals(accountNo)) {
+				balance = accountList.get(i).getBal();
+			}
+		}
+		return balance;
+	}
+}
