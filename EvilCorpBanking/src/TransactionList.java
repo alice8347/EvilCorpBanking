@@ -22,18 +22,26 @@ public class TransactionList {
 	public ArrayList<Transaction> sort() {
 		for (int i = 0; i < transactionList.size(); i++) {
 			for (int j = i; j < transactionList.size(); j++) {
+				// Sort the date first
 				if (transactionList.get(i).getDate().compareTo(transactionList.get(j).getDate()) > 0) {
 					Transaction temp3 = transactionList.get(i);
 					transactionList.set(i, transactionList.get(j));
 					transactionList.set(j, temp3);
 				}
+				
+				// If the dates are the same, compare the transaction types and amounts
 				if (transactionList.get(i).getDate().compareTo(transactionList.get(j).getDate()) == 0) {
+					// If the second transaction type is deposit and the first one is any of the other types, keep the same order
 					if ((!transactionList.get(i).getType().equals("deposit")) && transactionList.get(j).getType().equals("deposit")) {
 						continue;
+					
+					// if the first transaction type is deposit and the second one is any of the other types, swap the order
 					} else if (transactionList.get(i).getType().equals("deposit") && (!transactionList.get(j).getType().equals("deposit"))){
 						Transaction temp1 = transactionList.get(i);
 						transactionList.set(i, transactionList.get(j));
 						transactionList.set(j, temp1);
+						
+					// If both of the transactions are not deposit, put the one with larger amount first
 					} else if (transactionList.get(i).getAmount() < transactionList.get(j).getAmount()) {
 						Transaction temp2 = transactionList.get(i);
 						transactionList.set(i, transactionList.get(j));
