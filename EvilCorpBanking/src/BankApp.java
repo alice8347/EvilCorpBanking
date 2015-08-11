@@ -1,7 +1,5 @@
 import java.util.Scanner;
-import java.util.ArrayList;
 import java.util.Date;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.text.DecimalFormat;
@@ -10,98 +8,111 @@ public class BankApp {
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
-		ArrayList<Account> accounts = new ArrayList<Account>();
-		String accountNo = "", accountName = "";
-		double accountBal = 0.0;
+		HashMap<String, Double> accountSum = new HashMap<String, Double>();
+		AccountList accounts = new AccountList();
 		
 		TransactionList transactionList = new TransactionList();
-		String transactionType = "";
+		String accountNo = "", transactionType = "";
+		double accountBal = 0.0;
 		double transactionAmount = 0.0;
-		SimpleDateFormat formatter = new SimpleDateFormat("M/d/yyyy");
+		Date transactionDate = new Date();
 		
 		System.out.println("Welcome to Evil Corp Savings and Loan");
-		System.out.println("Please create the user account(s)");
-		
-		System.out.print("Enter an account # or -1 to stop entering accounts : ");
 		
 		try {
-			accountNo = sc.nextLine();
-			while (!accountNo.equals("-1")) {
-				Account accountNew = new Account();
-				accountNew.setNo(accountNo);
-				System.out.print("Enter the name for acct # " + accountNo + " : ");
-				accountName = sc.nextLine();
-				accountNew.setName(accountName);
-				System.out.print("Enter the balance for acct # " + accountNo + " : ");
-				accountBal = sc.nextDouble();
-				accountNew.setBal(accountBal);
-				accounts.add(accountNew);
-				sc.nextLine();
-				System.out.println("\n\n\n");
-				System.out.print("Enter an account # or -1 to stop entering accounts : ");
-				accountNo = sc.nextLine();
+			accounts.readAccount();
+			
+			for (int i = 0; i < accounts.getSize(); i++) {
+				accountSum.put(accounts.getAccount(i).getNo(), accounts.getAccount(i).getBal());
 			}
+			
+			System.out.println();
 			System.out.println();
 			
-			System.out.print("Enter a transaction type (Check, Debit card, Deposit or Withdrawal) or -1 to finish : ");
-			transactionType = sc.nextLine();
-			while (!validateType(transactionType)) {
-				System.out.println("Invalid transaction type. Please try again.");
-				transactionType = sc.nextLine();
+			for (String no : accountSum.keySet()) {
+				System.out.println("Account " + no + "'s Balance: " + getFormattedCurrency(accountSum.get(no)));;
 			}
+			transactionType = Validator.getString(sc, "Enter a transaction type (Check, Debit card, Deposit, Withdrawal, Add an account or Remove an account) or -1 to finish : ");
 			while (!transactionType.equals("-1")) {
 				Transaction transaction = new Transaction();
 				transaction.setType(transactionType);
-				System.out.print("Enter the account # : ");
-				accountNo = sc.nextLine();
-				transaction.setNo(accountNo);
-				
-				System.out.print("Enter the amount of the " + transaction.getType() + ": ");
-				
-				transactionAmount = sc.nextDouble();
-				transaction.setAmount(transactionAmount);
-				sc.nextLine();
-				
-				System.out.print("Enter the date of the " + transaction.getType() + ": ");
-				
-				Date transactionDate = formatter.parse(sc.nextLine());
-				transaction.setDate(transactionDate);
-				transactionList.addTransaction(transaction);
-				
-				System.out.println();
-				System.out.print("Enter a transaction type (Check, Debit card, Deposit or Withdrawal) or -1 to finish : ");
-				transactionType = sc.nextLine();
-				while (!validateType(transactionType)) {
-					System.out.println("Invalid transaction type. Please try again.");
-					transactionType = sc.nextLine();
+				if (transactionType.equals("add an account")) {
+					System.out.println("Please create the user account(s)");
+					accountNo = Validator.getString(sc, "Enter an account # or -1 to stop entering accounts : ");
+					
+					while (!accountNo.equals("-1")) {
+						while (accountSum.containsKey(accountNo)) {
+							System.out.println("Account already exists. Try again.");
+							accountNo = Validator.getString(sc, "Enter an account # or -1 to stop entering accounts : ");
+						}
+						Account accountNew = new Account();
+						accountNew.setNo(accountNo);
+						transaction.setNo(accountNo);
+						accountNew.setName(Validator.getString(sc, "Enter the name for acct # " + accountNo + " : "));
+						accountBal = Validator.getDouble(sc, "Enter the balance for acct # " + accountNo + " : ", 0);
+						accountNew.setBal(accountBal);
+						accounts.addAccount(accountNew);
+						transaction.setAmount(accountBal);
+						transactionDate = Validator.getDate(sc, "Enter the date of the " + transaction.getType() + ": ");
+						transaction.setDate(transactionDate);
+						transactionList.addTransaction(transaction);
+						System.out.println("\n\n\n");
+						accountNo = Validator.getString(sc, "Enter an account # or -1 to stop entering accounts : ");
+					}
+				} else if (transactionType.equals("check") || transactionType.equals("debit card") || transactionType.equals("deposit") || transactionType.equals("withdrawal")) {
+					accountNo = Validator.getString(sc, "Enter the account # : ");
+					while (!accountSum.containsKey(accountNo)) {
+						System.out.println("Account does not exist. Try again.");
+						accountNo = Validator.getString(sc, "Enter the account # : ");
+					}
+					transaction.setNo(accountNo);
+					transactionAmount = Validator.getDouble(sc, "Enter the amount of the " + transaction.getType() + ": ", 0);
+					transaction.setAmount(transactionAmount);
+					transactionDate = Validator.getDate(sc, "Enter the date of the " + transaction.getType() + ": ");
+					transaction.setDate(transactionDate);
+					transactionList.addTransaction(transaction);
+				} else {
+					accountNo = Validator.getString(sc, "Enter the account # : ");
+					while (accounts.getAccountBal(accountNo) != 0.0) {
+						System.out.println("Transaction denied. The balance is not equal to zero. Try again.");
+						accountNo = Validator.getString(sc, "Enter the account # : ");
+					}
+					transaction.setNo(accountNo);
+					transaction.setAmount(0.0);
+					transactionDate = Validator.getDate(sc, "Enter the date of the " + transaction.getType() + ": ");
+					transaction.setDate(transactionDate);
+					transactionList.addTransaction(transaction);
 				}
+				transactionType = Validator.getString(sc, "Enter a transaction type (Check, Debit card, Deposit, Withdrawal, Add an account or Remove an account) or -1 to finish : ");
 			}
 			
 			transactionList.sort();
 			for (int i = 0; i < transactionList.size(); i++) {
-				for (int j = 0; j < accounts.size(); j++) {
-					if (transactionList.getTransaction(i).getNo().equals(accounts.get(j).getNo())) {
-						double balance = accounts.get(j).getBal();
-						
-						if (transactionList.getTransaction(i).getType().equals("check") || transactionList.getTransaction(i).getType().equals("debit card") || transactionList.getTransaction(i).getType().equals("withdrawal")) {
+				for (int j = 0; j < accounts.getSize(); j++) {
+					if (transactionList.getTransaction(i).getNo().equals(accounts.getAccount(j).getNo())) {
+						double balance = accounts.getAccount(j).getBal();
+						if (transactionList.getTransaction(i).getType().equals("add an account")) {
+							break;
+						} else if (transactionList.getTransaction(i).getType().equals("check") || transactionList.getTransaction(i).getType().equals("debit card") || transactionList.getTransaction(i).getType().equals("withdrawal")) {
 							balance -= transactionList.getTransaction(i).getAmount();
 							if (balance < 0) {
 								balance -= 35;
 							}
-						} else {
+							accounts.getAccount(j).setBal(balance);
+						} else if (transactionList.getTransaction(i).getType().equals("deposit")){
 							balance += transactionList.getTransaction(i).getAmount();
+							accounts.getAccount(j).setBal(balance);
+						} else {
+							accounts.removeAccount(transactionList.getTransaction(i).getNo());
+							j--;
 						}
-						accounts.get(j).setBal(balance);
 					}
 				}
 			}
 			System.out.println();
-			
-			HashMap<String, Double> accountSum = new HashMap<String, Double>();
-			for (int i = 0; i < accounts.size(); i++) {
-				accountSum.put(accounts.get(i).getNo(), accounts.get(i).getBal());
+			for (int i = 0; i < accounts.getSize(); i++) {
+				accountSum.put(accounts.getAccount(i).getNo(), accounts.getAccount(i).getBal());
 			}
-			
 			HashMap<String, Transaction> transactionSum = new HashMap<String, Transaction>();
 			for (int i = 0; i < transactionList.size(); i++) {
 				transactionSum.put(transactionList.getTransaction(i).getNo(), transactionList.getTransaction(i));
@@ -113,38 +124,22 @@ public class BankApp {
 			}
 			
 			System.out.println();
-			System.out.println("==================================================");
+			System.out.println("=======================================================");
 			System.out.println("Transaction summary: ");
 			System.out.println();
 			SimpleDateFormat date = new SimpleDateFormat("M/d/yyyy");
-			System.out.printf("%-14s%-11s%-14s%s%n", "Date", "Account #", "Type", "Amount");
-			System.out.println("--------------------------------------------------");
+			System.out.printf("%-14s%-11s%-21s%s%n", "Date", "Account #", "Type", "Amount");
+			System.out.println("-------------------------------------------------------");
 			for (int i = 0; i < transactionList.size(); i++) {
-				System.out.printf("%-14s%-11s%-14s%s%n", date.format(transactionList.getTransaction(i).getDate()), transactionList.getTransaction(i).getNo(), transactionList.getTransaction(i).getType(), getFormattedCurrency(transactionList.getTransaction(i).getAmount()));
+				System.out.printf("%-14s%-11s%-21s%s%n", date.format(transactionList.getTransaction(i).getDate()), transactionList.getTransaction(i).getNo(), transactionList.getTransaction(i).getType(), getFormattedCurrency(transactionList.getTransaction(i).getAmount()));
 			}
-			System.out.println("==================================================");
-		} catch (ParseException e) {
-			System.err.println(e.getMessage());
+			System.out.println("=======================================================");
+			
+			accounts.setAccount();
 		} catch (NullPointerException e) {
 			System.err.println(e.getMessage());
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
-		}
-	}
-	
-	public static boolean validateType(String transactionType) {
-		if (transactionType.length() < 3) {
-			if (transactionType.toUpperCase().charAt(0) == 'C' || transactionType.toUpperCase().charAt(0) == 'W' || transactionType.equals("-1")) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			if (transactionType.substring(0, 3).equalsIgnoreCase("DEB") || transactionType.substring(0, 3).equalsIgnoreCase("DEP")) {
-				return true;
-			} else {
-				return false;
-			}
 		}
 	}
 	
