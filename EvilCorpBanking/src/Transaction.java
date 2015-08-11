@@ -1,10 +1,10 @@
 import java.util.Date;
 
 public class Transaction {
-	String type;
-	String no;
-	double amount;
-	Date date;
+	private String type;
+	private String no;
+	private double amount;
+	private Date date;
 	
 	public Transaction() {
 		type = "";
@@ -60,5 +60,5 @@ public class Transaction {
 	public void setDate(Date transactionDate) {
 		date = transactionDate;
 	}
-	
+
 }
